@@ -12,7 +12,7 @@ export default function Home() {
       .then(data => setData(data))
       .catch(err => setError('Backend not reachable'));
   }, []);
-
+  
   return (
     <main style={{ padding: '40px', fontFamily: 'sans-serif' }}>
       <h1>Admin Panel – Backend Test</h1>
@@ -32,3 +32,6 @@ export default function Home() {
     </main>
   );
 }
+
+// Shishir I am here
+//hello
