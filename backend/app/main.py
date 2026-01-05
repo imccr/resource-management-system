@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from sqlalchemy import text
+from app.core.database import SessionLocal
 
 app = FastAPI(title="Resource Management System API")
 
+# CORS (for frontend connection)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -14,21 +16,34 @@ app.add_middleware(
 
 @app.get("/")
 def root():
-    return {
-        "status": "Backend is running",
-        "message": "RMS API working correctly"
-    }
+    return {"message": "Backend is running"}
 
-@app.get("/api/health")
-def health_check():
-    return {
-        "backend": "ok",
-        "database": "not checked"
-    }
+@app.get("/db-test")
+def db_test():
+    db = None
+    try:
+        db = SessionLocal()
+        result = db.execute(text("SELECT * FROM rms.users"))
+        rows = result.fetchall()
 
+        users = []
+        for row in rows:
+            users.append({
+                "id": row.id,
+                "full_name": row.full_name,
+                "email": row.email,
+                "role_id": row.role_id,
+                "is_active": row.is_active
+            })
 
-# To test backend is working or not. Do this steps:
-# 
-# 1. cd backend
-# 2. uvicorn app.main:app --reload
-# 3. Open these urls http://127.0.0.1:8000/ or http://127.0.0.1:8000/api/health
+        return {
+            "count": len(users),
+            "users": users
+        }
+
+    except Exception as e:
+        return {"error": str(e)}
+
+    finally:
+        if db:
+            db.close()
