@@ -7,7 +7,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/health')
+    fetch('http://127.0.0.1:8000/db-test')
       .then(res => res.json())
       .then(data => setData(data))
       .catch(err => setError('Backend not reachable'));
