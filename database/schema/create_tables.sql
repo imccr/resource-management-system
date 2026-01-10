@@ -5,6 +5,12 @@ CREATE TABLE rms.admins (
     password VARCHAR(255) NOT NULL,
     is_active BOOLEAN DEFAULT TRUE
 ); 
+INSERT INTO rms.admins (username, password, is_active)
+VALUES
+('shishir', '$2b$12$DF8JwKgDi72hU1JE0LRXo.iHFRp9NV0gKR/ZnrgG75hXfkwVbTH/e', TRUE),
+('sagar', '$2b$12$wAan4YN.Qqr6thbgjqh1R.x0uRh6YnPBiHp4uT5Fw3cED3ggB.RLe', TRUE);
+UPDATE rms.admins SET username = 'shishir@gmail.com' WHERE username = 'shishir';
+UPDATE rms.admins SET username = 'sagar@gmail.com' WHERE username = 'sagar';
 
 CREATE TABLE rms.roles (
     id SERIAL PRIMARY KEY,

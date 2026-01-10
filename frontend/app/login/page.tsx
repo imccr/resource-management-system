@@ -7,7 +7,7 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email || !password) {
@@ -15,11 +15,27 @@ export default function AdminLogin() {
       return;
     }
 
-    // Temporary login check
-    if (email === 'admin@rms.com' && password === 'admin123') {
-      window.location.href = '/dashboard';
-    } else {
-      setError('Invalid credentials');
+    try {
+      // ✅ FIXED: Query params for FastAPI path parameters
+      const response = await fetch(
+        `http://localhost:8000/admin/login?username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+        { 
+          method: 'POST',
+          // ✅ NO JSON headers/body needed for query params
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setError('');
+        alert(`Login successful, ${data.username}! App under construction.`);
+        localStorage.setItem('token', data.token);
+      } else {
+        setError('Invalid credentials');
+      }
+    } catch (err) {
+      setError('Login failed. Check backend server.');
     }
   };
 

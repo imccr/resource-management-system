@@ -2,8 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from app.core.database import SessionLocal
+from app.routes import admin
+
 
 app = FastAPI(title="Resource Management System API")
+app.include_router(admin.router) 
 
 # CORS (for frontend connection)
 app.add_middleware(
