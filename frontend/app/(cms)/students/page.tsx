@@ -1,8 +1,8 @@
-export default function Dashboard() {
+export default function StudentsPage() {
   return (
     <div className="p-10">
       <h1 className="text-2xl font-semibold">
-        Admin Dashboard
+        Students Management
       </h1>
     </div>
   );

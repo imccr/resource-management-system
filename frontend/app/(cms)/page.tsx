@@ -12,9 +12,10 @@ export default async function Home() {
 
   // Logged in → render homepage
   return (
-    <main style={{ padding: '40px', fontFamily: 'sans-serif' }}>
-      <h1>Admin Dashboard</h1>
-      <p>Welcome! You are logged in.</p>
-    </main>
+    <div className="p-10">
+      <h1 className="text-2xl font-semibold">
+        Admin Dashboard
+      </h1>
+    </div>
   );
 }
