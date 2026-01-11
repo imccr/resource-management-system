@@ -1,39 +1,20 @@
-'use client';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
-import { useEffect, useState } from 'react';
+export default async function Home() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token');
 
-export default function Home() {
-  const [data, setData] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
+  // If not logged in → go to login
+  if (!token) {
+    redirect('/login');
+  }
 
-  useEffect(() => {
-    fetch('http://127.0.0.1:8000/db-test')
-      .then(res => res.json())
-      .then(data => setData(data))
-      .catch(err => setError('Backend not reachable'));
-  }, []);
-  
+  // Logged in → render homepage
   return (
     <main style={{ padding: '40px', fontFamily: 'sans-serif' }}>
-      <h1>Admin Panel – Backend Test</h1>
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      {data && (
-        <pre
-          style={{
-            padding: '20px',
-            marginTop: '20px'
-          }}
-        >
-          {JSON.stringify(data, null, 2)}
-        </pre>
-      )}
+      <h1>Admin Dashboard</h1>
+      <p>Welcome! You are logged in.</p>
     </main>
   );
 }
-
-// Shishir I am here
-//hello
-// Hello from sagar
-// Hello from sagar again

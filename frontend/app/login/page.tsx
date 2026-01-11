@@ -1,13 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function AdminLogin() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-    const handleSubmit = async (e: React.FormEvent) => {
+  // Optional: if already logged in, skip login page
+  useEffect(() => {
+    if (document.cookie.includes('token=')) {
+      router.replace('/');
+    }
+  }, [router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email || !password) {
@@ -16,25 +25,24 @@ export default function AdminLogin() {
     }
 
     try {
-      // ✅ FIXED: Query params for FastAPI path parameters
       const response = await fetch(
         `http://localhost:8000/admin/login?username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
-        { 
-          method: 'POST',
-          // ✅ NO JSON headers/body needed for query params
-        }
+        { method: 'POST' }
       );
 
       const data = await response.json();
 
       if (response.ok) {
         setError('');
-        alert(`Login successful, ${data.username}! App under construction.`);
-        localStorage.setItem('token', data.token);
+
+        // ✅ Store token in cookie (readable by server)
+        document.cookie = `token=${data.token}; path=/; max-age=86400`;
+
+        router.replace('/');
       } else {
         setError('Invalid credentials');
       }
-    } catch (err) {
+    } catch {
       setError('Login failed. Check backend server.');
     }
   };
