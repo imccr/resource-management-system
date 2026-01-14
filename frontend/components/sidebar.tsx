@@ -7,6 +7,7 @@ const menuItems = [
   { label: 'Dashboard', href: '/' },
   { label: 'Users', href: '/users' },
   { label: 'Students', href: '/students' },
+  { label: 'Teachers', href: '/teachers' },
 
 ];
 
