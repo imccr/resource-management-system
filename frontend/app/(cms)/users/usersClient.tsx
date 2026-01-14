@@ -1,5 +1,4 @@
 "use client"
-
 import { useEffect, useState } from "react"
 import AddUserModal from "./addUserModal"
 
@@ -11,8 +10,7 @@ type User = {
   is_active: boolean
 }
 
-export default async function UsersPage() {
-  
+export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
   const [open, setOpen] = useState(false)
 
