@@ -75,3 +75,13 @@ async def add_user(user: UserCreate):
 
     finally:
         await conn.close()
+
+# ---------- DELETE USER ----------
+@router.delete("/{user_id}")
+async def delete_user(user_id: int):
+    conn = await get_db_connection()
+    try:
+        await conn.execute("DELETE FROM rms.users WHERE id = $1", user_id)
+        return {"message": "User deleted successfully"}
+    finally:
+        await conn.close()

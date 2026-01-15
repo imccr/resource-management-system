@@ -9,7 +9,6 @@ export default async function Home() {
   if (!token) {
     redirect('/login');
   }
-  console.log("Token in homepage:", token);
 
   // Logged in → render homepage
   return (

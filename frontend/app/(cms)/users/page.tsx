@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import AddUserModal from "./addUserModal"
+import { EditButton, DeleteButton } from "@/components/button"
 
 type User = {
   id: number
@@ -22,8 +23,26 @@ export default function UsersPage() {
   }
 
   useEffect(() => {
-    fetchUsers()
+    const timer = setTimeout(() => {
+      fetchUsers()
+    }, 0);
+    return () => clearTimeout(timer);
   }, [])
+
+  const handleEdit = () => {
+    alert("Edit user functionality to be implemented")
+  }
+  
+  const handleDelete = (userId: number) => {
+    if (confirm("Are you sure you want to delete this user?")) {
+      fetch(`http://localhost:8000/users/${userId}`, {
+        method: "DELETE",
+      })
+        .then((res) => res.json())
+        .then(() => fetchUsers())
+        .catch((err) => alert("Error deleting user: " + err.message))
+    }
+  }
 
   return (
 
@@ -47,6 +66,7 @@ export default function UsersPage() {
               <th className="p-4 text-left">Email</th>
               <th className="p-4 text-center">Role</th>
               <th className="p-4 text-center">Status</th>
+              <th className="p-4 text-center w-64">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -60,14 +80,19 @@ export default function UsersPage() {
                 </td>
                 <td className="p-4 text-center">
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      u.is_active
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold ${u.is_active
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                      }`}
                   >
                     {u.is_active ? "Active" : "Inactive"}
                   </span>
+                </td>
+                <td className="p-4 text-center">
+                  <div className="flex gap-2 justify-center">
+                    <EditButton onClick={handleEdit} />
+                    <DeleteButton onClick={() => handleDelete(u.id)} />
+                  </div>
                 </td>
               </tr>
             ))}
