@@ -22,6 +22,7 @@ app.add_middleware(
 def root():
     return {"message": "Backend is running"}
 
+
 # @app.get("/db-test")
 # def db_test():
 #     db = None
