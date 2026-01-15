@@ -30,23 +30,24 @@ insert into rms.users values (1,'Shishir Timilsina','imccer@gmail.com','1234',1,
 select *from rms.users
 
 create table rms.students (
-    student_id int primary key,
+    student_id SERIAL primary key,
 	user_id int,
 	class_id int,
-	campus_rollno varchar(12)
+	campus_rollno varchar(50)
 );
 
 create table rms.teachers (
-     teacher_id int primary key,
+     teacher_id SERIAL primary key,
 	 user_id int,
 	 department_id int
 );
+
 create table rms.department (
-   department_id int primary key,
+   department_id SERIAL primary key,
    name varchar(100)
 );
 create table rms.class (
-   class_id int primary key,
+   class_id SERIAL primary key,
    name varchar(100),
    year int,
    semester int,
@@ -54,32 +55,32 @@ create table rms.class (
   -- subject_id varchar(10) --foreign key (subject_id) references rms.subject(subject_id),  
 );
 create table rms.subject (
-   subject_id int,
+   subject_id SERIAL primary key,
    subject_code varchar(10),
    name varchar(100),
    department_id int
 );
 create table rms.teachersubjectclass (
-   teacher_id int,
+   teacher_id SERIAL,
    subject_id int,
    class_id int
 );
 create table rms.file (
-  file_id int primary key,
+  file_id SERIAL primary key,
   file_name varchar(100),
   file_size varchar(20),
   file_type varchar(20),
   uploaded_at time
 );
 create table rms.resource (
-   resource_id int primary key,
+   resource_id SERIAL primary key,
    file_id int,
-   uploaded_by varchar(100),
+   uploaded_by int,
    description text,
    created_at date
 );
 create table rms.resourcetarget (
-   target_id int primary key,
+   target_id SERIAL primary key,
    target_type varchar(100),
    resource_id int
 );
@@ -104,14 +105,6 @@ ALTER COLUMN uploaded_by TYPE INT USING uploaded_by::integer;
 -- Remove subject_id from class table (not in ER diagram)
 ALTER TABLE rms.class
 DROP COLUMN subject_id;
-
--- ============================================
--- ADD PRIMARY KEYS FIRST (before foreign keys that reference them)
--- ============================================
-
--- Add primary key to subject table
-ALTER TABLE rms.subject
-ADD CONSTRAINT pk_subject PRIMARY KEY (subject_id);
 
 -- ============================================
 -- ADD FOREIGN KEY CONSTRAINTS
