@@ -164,7 +164,7 @@ async def get_all_teachers():
                 "teacher_id": row["teacher_id"],
                 "full_name": row["full_name"],
                 "email": row["email"],
-                "deparment_id": row["department_id"],
+                "department_id": row["department_id"],
                 "is_active": row["is_active"]
             })
 
@@ -176,34 +176,43 @@ async def get_all_teachers():
     finally:
         await conn.close()
 
-# ---------- FETCH ALL Departments ----------
-# @router.get("/departments")
-# async def get_all_departments():
-#     conn = await get_db_connection()
-#     try:
-#         rows = await conn.fetch("""
-#             select *
-#             from rms.department d
-#             join rms.class c
-#             on d.department_id = c.department_id
-#             inner join rms.students s
-#             on c.class_id = s.class_id                   
-#                     """)
+#--------- FETCH ALL Departments ----------
+@router.get("/departments")
+async def get_all_departments():
+    conn = await get_db_connection()
+    try:
+        rows = await conn.fetch("""
+                SELECT
+                d.department_id,
+                d.name,
+                COUNT(DISTINCT c.class_id) AS total_classes,
+                COUNT(s.student_id) AS total_students
+                FROM rms.department d
+                JOIN rms.class c
+                ON d.department_id = c.department_id
+                JOIN rms.students s
+                ON c.class_id = s.class_id
+                GROUP BY
+                d.department_id,
+                d.name
+                ORDER BY
+                d.department_id;
+                  
+                    """)
 
-#         departments= []
-#         for row in rows:
-#             departments.append({
-#                 "department_id": row["department_id"],
-#                 "name": row["name"],
-#                 "email": row["email"],
-#                 "deparment_id": row["department_id"],
-#                 "is_active": row["is_active"]
-#             })
+        departments= []
+        for row in rows:
+            departments.append({
+                "department_id": row["department_id"],
+                "name": row["name"],
+                "total_classes": row["total_classes"],
+                "total_students": row["total_students"]
+            })
 
-#         return {
-#             "count": len(departments),
-#             "teachers": departments
-#         }
+        return {
+            "count": len(departments),
+            "teachers": departments
+        }
 
-#     finally:
-#         await conn.close()
+    finally:
+        await conn.close()
