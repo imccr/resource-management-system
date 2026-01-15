@@ -128,6 +128,7 @@ async def get_all_students():
         students= []
         for row in rows:
             students.append({
+                "user_id": row["id"],
                 "campus_rollno": row["campus_rollno"],
                 "full_name": row["full_name"],
                 "email": row["email"],
@@ -175,4 +176,34 @@ async def get_all_teachers():
     finally:
         await conn.close()
 
+# ---------- FETCH ALL Departments ----------
+# @router.get("/departments")
+# async def get_all_departments():
+#     conn = await get_db_connection()
+#     try:
+#         rows = await conn.fetch("""
+#             select *
+#             from rms.department d
+#             join rms.class c
+#             on d.department_id = c.department_id
+#             inner join rms.students s
+#             on c.class_id = s.class_id                   
+#                     """)
 
+#         departments= []
+#         for row in rows:
+#             departments.append({
+#                 "department_id": row["department_id"],
+#                 "name": row["name"],
+#                 "email": row["email"],
+#                 "deparment_id": row["department_id"],
+#                 "is_active": row["is_active"]
+#             })
+
+#         return {
+#             "count": len(departments),
+#             "teachers": departments
+#         }
+
+#     finally:
+#         await conn.close()
