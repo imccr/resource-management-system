@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
-import AddUserModal from "./addUserModal"
+import AddTeacherModal from "./addTeacherModal"
+import AddStudentModal from "./addStudentModal"
 import { EditButton, DeleteButton } from "@/components/button"
 
 type User = {
@@ -13,7 +14,8 @@ type User = {
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
-  const [open, setOpen] = useState(false)
+  const [openTeacher, setOpenTeacher] = useState(false)
+  const [openStudent, setOpenStudent] = useState(false)
 
   const fetchUsers = async () => {
     const res = await fetch("http://localhost:8000/users")
@@ -32,7 +34,7 @@ export default function UsersPage() {
   const handleEdit = () => {
     alert("Edit user functionality to be implemented")
   }
-  
+
   const handleDelete = (userId: number) => {
     if (confirm("Are you sure you want to delete this user?")) {
       fetch(`http://localhost:8000/users/${userId}`, {
@@ -49,12 +51,20 @@ export default function UsersPage() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-gray-700">Users</h1>
-        <button
-          onClick={() => setOpen(true)}
-          className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
-        >
-          + Add User
-        </button>
+        <div className="flex space-x-4">
+          <button
+            onClick={() => setOpenStudent(true)}
+            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+          >
+            + Add Student
+          </button>
+          <button
+            onClick={() => setOpenTeacher(true)}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            + Add Teacher
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded shadow">
@@ -76,7 +86,7 @@ export default function UsersPage() {
                 <td className="p-4">{u.full_name}</td>
                 <td className="p-4">{u.email}</td>
                 <td className="p-4 text-center">
-                  {u.role_id === 1 ? "Admin" : "Student"}
+                  {u.role_id === 1 ? "Teacher" : "Student"}
                 </td>
                 <td className="p-4 text-center">
                   <span
@@ -100,9 +110,14 @@ export default function UsersPage() {
         </table>
       </div>
 
-      <AddUserModal
-        open={open}
-        onClose={() => setOpen(false)}
+      <AddTeacherModal
+        open={openTeacher}
+        onClose={() => setOpenTeacher(false)}
+        onSuccess={fetchUsers}
+      />
+      <AddStudentModal
+        open={openStudent}
+        onClose={() => setOpenStudent(false)}
         onSuccess={fetchUsers}
       />
     </div>

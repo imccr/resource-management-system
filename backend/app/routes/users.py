@@ -48,33 +48,57 @@ async def add_user(user: UserCreate):
     conn = await get_db_connection()
 
     try:
-        existing = await conn.fetchrow(
-            "SELECT id FROM rms.users WHERE email = $1",
-            user.email
-        )
-        if existing:
-            raise HTTPException(status_code=400, detail="Email already exists")
+        async with conn.transaction():
+            existing = await conn.fetchrow(
+                "SELECT id FROM rms.users WHERE email = $1",
+                user.email
+            )
+            if existing:
+                raise HTTPException(status_code=400, detail="Email already exists")
 
-        hashed_password = bcrypt.hashpw(
-            user.password.encode("utf-8"),
-            bcrypt.gensalt()
-        ).decode("utf-8")
+            hashed_password = bcrypt.hashpw(
+                user.password.encode("utf-8"),
+                bcrypt.gensalt()
+            ).decode("utf-8")
 
-        await conn.execute("""
-            INSERT INTO rms.users (full_name, email, password, role_id, is_active)
-            VALUES ($1, $2, $3, $4, $5)
-        """,
-            user.full_name,
-            user.email,
-            hashed_password,
-            user.role_id,
-            user.is_active
-        )
+            user_row = await conn.fetchrow("""
+                INSERT INTO rms.users (full_name, email, password, role_id, is_active)
+                VALUES ($1, $2, $3, $4, $5)
+                RETURNING id
+            """,
+                user.full_name,
+                user.email,
+                hashed_password,
+                user.role_id,
+                user.is_active
+            )
+            
+            user_id = user_row["id"]
 
+            if user.role_id == 2 :
+                await conn.execute("""
+                    INSERT INTO rms.students(user_id,class_id,campus_rollno)
+                    VALUES ($1, $2, $3)
+                """,
+                    user_id,
+                    user.class_id,
+                    user.campus_rollno
+                )
+
+            if user.role_id == 1 :
+                await conn.execute("""
+                    INSERT INTO rms.teachers(user_id, department_id)
+                    VALUES ($1, $2)
+                """,
+                    user_id,
+                    user.department_id
+                )
+    
         return {"message": "User added successfully"}
-
+    
     finally:
         await conn.close()
+
 
 # ---------- DELETE USER ----------
 @router.delete("/{user_id}")
@@ -84,4 +108,71 @@ async def delete_user(user_id: int):
         await conn.execute("DELETE FROM rms.users WHERE id = $1", user_id)
         return {"message": "User deleted successfully"}
     finally:
+        await conn.close() 
+
+
+# ---------- FETCH ALL Students ----------
+@router.get("/students")
+async def get_all_students():
+    conn = await get_db_connection()
+    try:
+        rows = await conn.fetch("""
+            select *
+            from rms.students s
+            join rms.users u
+            on s.user_id = u.id
+            join rms.class c
+            on s.class_id = c.class_id
+                    """)
+
+        students= []
+        for row in rows:
+            students.append({
+                "campus_rollno": row["campus_rollno"],
+                "full_name": row["full_name"],
+                "email": row["email"],
+                "class": row["name"],
+                "year": row["year"],
+                "part": row["semester"],
+                "is_active": row["is_active"]
+            })
+
+        return {
+            "count": len(students),
+            "students": students
+        }
+
+    finally:
         await conn.close()
+
+# ---------- FETCH ALL Teachers ----------
+@router.get("/teachers")
+async def get_all_teachers():
+    conn = await get_db_connection()
+    try:
+        rows = await conn.fetch("""
+            select *
+            from rms.users u
+            join rms.teachers t
+            on u.id = t.user_id
+                    """)
+
+        teachers= []
+        for row in rows:
+            teachers.append({
+                "teacher_id": row["teacher_id"],
+                "full_name": row["full_name"],
+                "email": row["email"],
+                "deparment_id": row["department_id"],
+                "is_active": row["is_active"]
+            })
+
+        return {
+            "count": len(teachers),
+            "teachers": teachers
+        }
+
+    finally:
+        await conn.close()
+
+

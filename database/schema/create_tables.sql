@@ -51,7 +51,7 @@ create table rms.class (
    year int,
    semester int,
    department_id int, --foreign key (department_id) references rms.department(department_id),
-   subject_id varchar(10) --foreign key (subject_id) references rms.subject(subject_id),  
+  -- subject_id varchar(10) --foreign key (subject_id) references rms.subject(subject_id),  
 );
 create table rms.subject (
    subject_id int,
@@ -112,10 +112,6 @@ DROP COLUMN subject_id;
 -- Add primary key to subject table
 ALTER TABLE rms.subject
 ADD CONSTRAINT pk_subject PRIMARY KEY (subject_id);
-
--- Add primary key to teachersubjectclass table
-ALTER TABLE rms.teachersubjectclass
-ADD CONSTRAINT pk_teachersubjectclass PRIMARY KEY (teacher_id, subject_id, class_id);
 
 -- ============================================
 -- ADD FOREIGN KEY CONSTRAINTS

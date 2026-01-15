@@ -2,11 +2,13 @@
 
 import { useState } from "react"
 
-export default function AddUserModal({ open, onClose, onSuccess }: any) {
+export default function AddStudentModal({ open, onClose, onSuccess }: any) {
   const [form, setForm] = useState({
     full_name: "",
     email: "",
     password: "",
+    class_id: 1,
+    campus_rollno:"",
     role_id: 2,
     is_active: true,
   })
@@ -14,6 +16,7 @@ export default function AddUserModal({ open, onClose, onSuccess }: any) {
   if (!open) return null
 
   const submit = async () => {
+    
     await fetch("http://localhost:8000/users", {
       method: "POST",
       headers: {
@@ -21,9 +24,11 @@ export default function AddUserModal({ open, onClose, onSuccess }: any) {
       },
       body: JSON.stringify(form),
     })
+    
 
     onSuccess()
     onClose()
+    
   }
   
 
@@ -31,7 +36,7 @@ export default function AddUserModal({ open, onClose, onSuccess }: any) {
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-white w-105 rounded-lg p-6">
         <h2 className="text-lg font-semibold text-indigo-600 mb-4">
-          Add New User
+          Add New Student
         </h2>
 
         <div className="space-y-3">
@@ -60,17 +65,22 @@ export default function AddUserModal({ open, onClose, onSuccess }: any) {
               setForm({ ...form, password: e.target.value })
             }
           />
-
-          <select
+          <input
             className="w-full border rounded px-3 py-2"
+            placeholder="Class Id"
             onChange={(e) =>
-              setForm({ ...form, role_id: Number(e.target.value) })
+              setForm({ ...form, class_id: Number(e.target.value) })
             }
-          >
-            <option value={1}>Admin</option>
-            <option value={2}>Student</option>
-          </select>
-
+          />
+          <input
+            className="w-full border rounded px-3 py-2"
+            placeholder="CampusRollNo"
+            onChange={(e) =>
+              setForm({ ...form, campus_rollno: e.target.value })
+            }
+          />
+           
+        
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
