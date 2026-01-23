@@ -1,3 +1,5 @@
+ -- JOIN FOR STUDENTS
+ 
  select *
             from rms.students s
             join rms.users u
@@ -5,15 +7,24 @@
             join rms.class c
             on s.class_id = c.class_id
 
+ -- JOIN FOR TEACHERS
+ select *
+            from rms.users u
+            join rms.teachers t
+            on u.id = t.user_id
 
- SELECT
+ --JOIN FOR DEPARTMENT           
+SELECT
                 d.department_id,
                 d.name,
                 COUNT(DISTINCT c.class_id) AS total_classes,
-                COUNT(s.student_id) AS total_students
+                COUNT(DISTINCT t.teacher_id) AS total_teachers,
+                COUNT(DISTINCT s.student_id) AS total_students
                 FROM rms.department d
                 LEFT JOIN rms.class c
                 ON d.department_id = c.department_id
+                LEFT JOIN rms.teachers t
+                ON d.department_id = t.department_id
                 LEFT JOIN rms.students s
                 ON c.class_id = s.class_id
                 GROUP BY
@@ -21,3 +32,26 @@
                 d.name
                 ORDER BY
                 d.department_id;
+    
+--JOIN FOR RESOURCES
+
+SELECT
+                r.resource_id,
+                r.title,
+                r.type,
+                r.uploaded_by,
+                r.date_uploaded,
+                COUNT(rt.target_id) AS target_count
+                FROM rms.resource r
+                LEFT JOIN rms.resourcetarget rt
+                ON r.resource_id = rt.resource_id
+                GROUP BY
+                r.resource_id,
+                r.title,
+                r.type,
+                r.uploaded_by,
+                r.date_uploaded
+                ORDER BY
+                r.date_uploaded DESC;
+
+
