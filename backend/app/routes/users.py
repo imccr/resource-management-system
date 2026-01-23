@@ -178,6 +178,7 @@ async def get_all_teachers():
 
 #--------- FETCH ALL Departments ----------
 @router.get("/departments")
+@router.get("/departments")
 async def get_all_departments():
     conn = await get_db_connection()
     try:
@@ -186,11 +187,14 @@ async def get_all_departments():
                 d.department_id,
                 d.name,
                 COUNT(DISTINCT c.class_id) AS total_classes,
-                COUNT(s.student_id) AS total_students
+                COUNT(DISTINCT t.teacher_id) AS total_teachers,
+                COUNT(DISTINCT s.student_id) AS total_students
                 FROM rms.department d
-                JOIN rms.class c
+                LEFT JOIN rms.class c
                 ON d.department_id = c.department_id
-                JOIN rms.students s
+                LEFT JOIN rms.teachers t
+                ON d.department_id = t.department_id
+                LEFT JOIN rms.students s
                 ON c.class_id = s.class_id
                 GROUP BY
                 d.department_id,
@@ -200,19 +204,109 @@ async def get_all_departments():
                   
                     """)
 
-        departments= []
+        departments = []
         for row in rows:
             departments.append({
                 "department_id": row["department_id"],
                 "name": row["name"],
                 "total_classes": row["total_classes"],
+                "total_teachers": row["total_teachers"],
                 "total_students": row["total_students"]
             })
 
         return {
             "count": len(departments),
-            "teachers": departments
+            "departments": departments
         }
+
+    finally:
+        await conn.close()
+
+
+#--------- FETCH ALL Resources ----------
+@router.get("/resources")
+async def get_all_resources():
+    conn = await get_db_connection()
+    try:
+        rows = await conn.fetch("""
+                SELECT
+                r.resource_id,
+                r.title,
+                r.type,
+                r.uploaded_by,
+                r.date_uploaded,
+                COUNT(rt.target_id) AS target_count
+                FROM rms.resource r
+                LEFT JOIN rms.resourcetarget rt
+                ON r.resource_id = rt.resource_id
+                GROUP BY
+                r.resource_id,
+                r.title,
+                r.type,
+                r.uploaded_by,
+                r.date_uploaded
+                ORDER BY
+                r.date_uploaded DESC;
+                  
+                    """)
+
+        resources = []
+        for row in rows:
+            resources.append({
+                "resource_id": row["resource_id"],
+                "title": row["title"],
+                "type": row["type"],
+                "uploaded_by": row["uploaded_by"],
+                "date_uploaded": row["date_uploaded"],
+                "target_count": row["target_count"]
+            })
+
+        return {
+            "count": len(resources),
+            "resources": resources
+        }
+
+    finally:
+        await conn.close()
+
+
+#--------- GET SINGLE RESOURCE ----------
+@router.get("/resources/{resource_id}")
+async def get_resource(resource_id: int):
+    conn = await get_db_connection()
+    try:
+        resource = await conn.fetchrow("""
+                SELECT * FROM rms.resource WHERE resource_id = $1
+                """, resource_id)
+        
+        if not resource:
+            raise HTTPException(status_code=404, detail="Resource not found")
+        
+        return {
+            "resource_id": resource["resource_id"],
+            "title": resource["title"],
+            "type": resource["type"],
+            "uploaded_by": resource["uploaded_by"],
+            "date_uploaded": resource["date_uploaded"]
+        }
+
+    finally:
+        await conn.close()
+
+
+#--------- DELETE RESOURCE ----------
+@router.delete("/resources/{resource_id}")
+async def delete_resource(resource_id: int):
+    conn = await get_db_connection()
+    try:
+        result = await conn.execute("""
+                DELETE FROM rms.resource WHERE resource_id = $1
+                """, resource_id)
+        
+        if result == "DELETE 0":
+            raise HTTPException(status_code=404, detail="Resource not found")
+        
+        return {"message": "Resource deleted successfully"}
 
     finally:
         await conn.close()

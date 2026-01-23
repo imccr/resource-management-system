@@ -8,6 +8,8 @@ const menuItems = [
   { label: 'Users', href: '/users' },
   { label: 'Students', href: '/students' },
   { label: 'Teachers', href: '/teachers' },
+  { label: 'Departments', href: '/departments' },
+   { label: 'Resources', href: '/resources' },
 
 ];
 

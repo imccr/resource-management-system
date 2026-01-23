@@ -30,7 +30,7 @@ export default function TeachersPage() {
 
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-700">Users</h1>
+        <h1 className="text-2xl font-semibold text-gray-700">Teachers</h1>
       </div>
 
       <div className="bg-white rounded shadow">
