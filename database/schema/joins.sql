@@ -1,5 +1,4 @@
  -- JOIN FOR STUDENTS
- 
  select *
             from rms.students s
             join rms.users u

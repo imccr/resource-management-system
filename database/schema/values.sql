@@ -19,3 +19,8 @@ values(1,'CT 653','Artificial Intelligence',1),
 (5,'CT 656','Operating System',1),
 (6,'CE 655','Engineering Economincs',5),
 (7,'CT 651','Object Oriented Analysis and Design',1);
+
+INSERT INTO rms.resource (file_id, title, type, uploaded_by, date_uploaded) VALUES
+('RES001', 'Data Structure Notes', 'Document', 'Er. Sudip Rana', '2024-01-15'),
+('RES002', 'Database Management System', 'Pdf', 'Er. Rajad Shakya', '2024-02-10'),
+('RES003', 'Artificial Intelligence', 'Presentation', 'Dr. Bipun Man Pati', '2024-03-05');

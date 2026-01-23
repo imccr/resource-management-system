@@ -15,8 +15,10 @@ export default function ResourcesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [filterType, setFilterType] = useState("All Types")
   const [searchQuery, setSearchQuery] = useState("")
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     const fetchResources = async () => {
       try {
         const res = await fetch("http://localhost:8000/users/resources")
@@ -60,7 +62,7 @@ export default function ResourcesPage() {
 
   const resourceTypes = ["All Types", ...new Set(resources.map(r => r.type))]
 
-  if (isLoading) return <div className="p-6">Loading...</div>
+  if (isLoading || !mounted) return <div className="p-6">Loading...</div>
 
   return (
     <div className="p-6">
@@ -109,7 +111,7 @@ export default function ResourcesPage() {
               <th className="p-4 text-left w-1/6">Type</th>
               <th className="p-4 text-left w-1/6">Uploaded By</th>
               <th className="p-4 text-left w-1/6">Date Uploaded</th>
-              <th className="p-4 text-center w-1/6">Actions</th>
+
             </tr>
           </thead>
           <tbody>
@@ -124,23 +126,12 @@ export default function ResourcesPage() {
                     </span>
                   </td>
                   <td className="p-4 w-1/6">{r.uploaded_by}</td>
-                  <td className="p-4 w-1/6">{new Date(r.date_uploaded).toLocaleDateString()}</td>
-                  <td className="p-4 text-center w-1/6">
-                    <button className="text-blue-600 hover:text-blue-800 mr-3">
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(r.resource_id)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      Delete
-                    </button>
-                  </td>
+                  <td className="p-4 w-1/6">{r.date_uploaded}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="p-4 text-center text-gray-500">
+                <td colSpan={5} className="p-4 text-center text-gray-500">
                   No resources found
                 </td>
               </tr>

@@ -3,6 +3,8 @@ import asyncpg
 import bcrypt
 from app.core.database import DATABASE_URL
 from app.schemas.user import UserCreate
+from datetime import date, datetime
+
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -231,8 +233,8 @@ async def get_all_resources():
         rows = await conn.fetch("""
                 SELECT
                 r.resource_id,
-                r.title,
-                r.type,
+                r.file_id,
+                r.description,
                 r.uploaded_by,
                 r.date_uploaded,
                 COUNT(rt.target_id) AS target_count
@@ -254,10 +256,9 @@ async def get_all_resources():
         for row in rows:
             resources.append({
                 "resource_id": row["resource_id"],
-                "title": row["title"],
-                "type": row["type"],
+                "description": row["description"],
                 "uploaded_by": row["uploaded_by"],
-                "date_uploaded": row["date_uploaded"],
+                "date_uploaded": row["date_uploaded"].isoformat(),
                 "target_count": row["target_count"]
             })
 
@@ -284,8 +285,7 @@ async def get_resource(resource_id: int):
         
         return {
             "resource_id": resource["resource_id"],
-            "title": resource["title"],
-            "type": resource["type"],
+            "description": resource["description"],
             "uploaded_by": resource["uploaded_by"],
             "date_uploaded": resource["date_uploaded"]
         }
