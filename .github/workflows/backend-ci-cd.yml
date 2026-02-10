@@ -1,0 +1,90 @@
+
+name: Backend CI/CD
+
+# When to run this workflow
+on:
+  push:
+    branches: [ "main", "develop" ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci-cd.yml'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  # Job 1: Test and Lint
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Step 1: Get code from GitHub
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Step 2: Setup Python 3.10
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    # Step 3: Cache dependencies (faster builds)
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    # Step 4: Install dependencies
+    - name: Install dependencies
+      run: |
+        cd backend
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov flake8
+
+    # Step 5: Lint code (check code quality)
+    - name: Lint with flake8
+      run: |
+        cd backend
+        # Stop on syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Exit-zero treats all errors as warnings
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      continue-on-error: true
+
+    # Step 6: Run tests (if you have any)
+    - name: Run tests
+      run: |
+        cd backend
+        # If you have tests, they will run here
+        # pytest tests/ -v --cov=app --cov-report=term-missing
+        echo "No tests configured yet - skipping"
+      continue-on-error: true
+
+  # Job 2: Deploy to Render (only on main branch)
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Deploy to Render
+      env:
+        RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+      run: |
+        echo "Deploying to Render..."
+        # Render auto-deploys when GitHub changes (if connected)
+        # Or trigger deploy via API
+        curl -X POST "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" \
+          -H "Authorization: Bearer ${RENDER_API_KEY}" \
+          -H "Content-Type: application/json"
+
+

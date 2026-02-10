@@ -1,0 +1,83 @@
+
+name: Frontend CI/CD
+
+# When to run this workflow
+on:
+  push:
+    branches: [ "main", "develop" ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-ci-cd.yml'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  # Job 1: Build and Test
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Get code from GitHub
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Step 2: Setup Node.js
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'frontend/package-lock.json'
+
+    # Step 3: Install dependencies
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+
+    # Step 4: Lint code
+    - name: Lint code
+      run: |
+        cd frontend
+        npm run lint
+      continue-on-error: true
+
+    # Step 5: Build Next.js app
+    - name: Build Next.js app
+      run: |
+        cd frontend
+        npm run build
+      env:
+        NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+
+    # Step 6: Run tests (if you have any)
+    - name: Run tests
+      run: |
+        cd frontend
+        # npm test -- --passWithNoTests
+        echo "No tests configured yet - skipping"
+      continue-on-error: true
+
+  # Job 2: Deploy to Vercel (only on main branch)
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Deploy to Vercel
+      env:
+        VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      run: |
+        cd frontend
+        npm install -g vercel
+        vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+        vercel build --prod --token=$VERCEL_TOKEN
+        vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
