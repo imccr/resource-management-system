@@ -25,10 +25,13 @@ export default function AdminLogin() {
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:8000/admin/login?username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
-        { method: 'POST' }
-      );
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+        const response = await fetch(
+          `${API_URL}/admin/login?username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+          { method: 'POST' }
+        );
+    
 
       const data = await response.json();
 
