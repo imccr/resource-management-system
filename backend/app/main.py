@@ -18,7 +18,7 @@ app.add_middleware(
     allow_origins=[
         FRONTEND_URL,
         "http://localhost:3000",
-        "https://rms-tcioe.vercel.app"  # Add this explicitly
+        "https://rms-tcioe.vercel.app"  
     ],
     allow_credentials=True,
     allow_methods=["*"],
