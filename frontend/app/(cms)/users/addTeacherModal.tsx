@@ -19,7 +19,11 @@ export default function AddTeacherModal({ open, onClose, onSuccess }: any) {
   const submit = async () => {
     console.log(JSON.stringify(form))
 
+<<<<<<< HEAD
     await fetch(`${API_URL}/users`, {
+=======
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
+>>>>>>> aa990d3 (deployed)
       method: "POST",
       headers: {
         "Content-Type": "application/json",

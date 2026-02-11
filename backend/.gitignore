@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 ```gitignore
 # Python
@@ -41,3 +42,6 @@ htmlcov/
 .DS_Store
 Thumbs.db
 ```
+=======
+.vercel
+>>>>>>> 5e3d6f4 (set CI/CD Pipeline and vercel deployment)

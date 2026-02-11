@@ -21,7 +21,11 @@ export default function UsersPage() {
   const [openStudent, setOpenStudent] = useState(false)
 
   const fetchUsers = async () => {
+<<<<<<< HEAD
     const res = await fetch(`${API_URL}/users`)
+=======
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`)
+>>>>>>> aa990d3 (deployed)
     const data = await res.json()
     setUsers(data.users)
   }

@@ -19,8 +19,13 @@ export default function AddStudentModal({ open, onClose, onSuccess }: any) {
   if (!open) return null
 
   const submit = async () => {
+<<<<<<< HEAD
 
     await fetch(`${API_URL}/users`, {
+=======
+    
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
+>>>>>>> aa990d3 (deployed)
       method: "POST",
       headers: {
         "Content-Type": "application/json",

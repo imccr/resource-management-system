@@ -32,7 +32,6 @@ export default function AdminLogin() {
         { method: 'POST' }
       );
 
-
       const data = await response.json();
 
       if (response.ok) {
