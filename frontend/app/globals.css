@@ -1,16 +1,108 @@
 @import "tailwindcss";
 
-/* Force light color scheme */
-:root {
+/* ===== LIGHT THEME (default) ===== */
+:root,
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-card: #ffffff;
+  --bg-hover: #f3f4f6;
+  --bg-input: #ffffff;
+
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --text-heading: #374151;
+
+  --border-color: #e5e7eb;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+
+  --accent-primary: #4f46e5;
+  --accent-hover: #4338ca;
+
+  --table-header-bg: #f9fafb;
+  --table-header-text: #4f46e5;
+  --table-row-hover: #f9fafb;
+  --table-border: #e5e7eb;
+
+  --badge-green-bg: #dcfce7;
+  --badge-green-text: #15803d;
+  --badge-red-bg: #fee2e2;
+  --badge-red-text: #b91c1c;
+  --badge-blue-bg: #dbeafe;
+  --badge-blue-text: #1e40af;
+
+  --sidebar-from: #4f46e5;
+  --sidebar-to: #7c3aed;
+  --sidebar-text: #ffffff;
+  --sidebar-active-bg: rgba(255, 255, 255, 0.2);
+  --sidebar-hover-bg: rgba(255, 255, 255, 0.1);
+  --sidebar-border: rgba(255, 255, 255, 0.2);
+
+  --modal-backdrop: rgba(0, 0, 0, 0.4);
+  --modal-bg: #ffffff;
+
   color-scheme: light;
 }
 
-/* Hard override */
+/* ===== DARK THEME ===== */
+[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-hover: #334155;
+  --bg-input: #1e293b;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-heading: #e2e8f0;
+
+  --border-color: #334155;
+  --shadow-color: rgba(0, 0, 0, 0.5);
+
+  --accent-primary: #6366f1;
+  --accent-hover: #818cf8;
+
+  --table-header-bg: #1e293b;
+  --table-header-text: #818cf8;
+  --table-row-hover: #334155;
+  --table-border: #334155;
+
+  --badge-green-bg: #064e3b;
+  --badge-green-text: #6ee7b7;
+  --badge-red-bg: #7f1d1d;
+  --badge-red-text: #fca5a5;
+  --badge-blue-bg: #1e3a5f;
+  --badge-blue-text: #93c5fd;
+
+  --sidebar-from: #1e1b4b;
+  --sidebar-to: #312e81;
+  --sidebar-text: #e0e7ff;
+  --sidebar-active-bg: rgba(255, 255, 255, 0.15);
+  --sidebar-hover-bg: rgba(255, 255, 255, 0.08);
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+
+  --modal-backdrop: rgba(0, 0, 0, 0.7);
+  --modal-bg: #1e293b;
+
+  color-scheme: dark;
+}
+
+/* ===== BASE STYLES ===== */
 html,
 body {
-  background-color: #ffffff !important;
-  color: #000000 !important;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   margin: 0;
   padding: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', 'Segoe UI', Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Theme transition for smooth toggle */
+*,
+*::before,
+*::after {
+  transition: background-color 0.3s ease, color 0.2s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }

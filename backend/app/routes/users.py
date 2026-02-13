@@ -14,6 +14,51 @@ async def get_db_connection():
     return await asyncpg.connect(DATABASE_URL)
 
 
+# ---------- DASHBOARD STATS (using JOINs) ----------
+@router.get("/dashboard-stats")
+async def get_dashboard_stats():
+    conn = await get_db_connection()
+    try:
+        row = await conn.fetchrow("""
+            SELECT
+                s.total_students,
+                t.total_teachers,
+                d.total_departments,
+                c.total_classes,
+                r.total_resources
+            FROM
+                (SELECT COUNT(*) AS total_students
+                 FROM rms.students st
+                 JOIN rms.users u ON st.user_id = u.id
+                 WHERE u.is_active = true) s,
+
+                (SELECT COUNT(*) AS total_teachers
+                 FROM rms.teachers tc
+                 JOIN rms.users u ON tc.user_id = u.id
+                 WHERE u.is_active = true) t,
+
+                (SELECT COUNT(*) AS total_departments
+                 FROM rms.department) d,
+
+                (SELECT COUNT(*) AS total_classes
+                 FROM rms.class) c,
+
+                (SELECT COUNT(*) AS total_resources
+                 FROM rms.resource) r
+        """)
+
+        return {
+            "total_students": row["total_students"],
+            "total_teachers": row["total_teachers"],
+            "total_departments": row["total_departments"],
+            "total_classes": row["total_classes"],
+            "total_resources": row["total_resources"]
+        }
+
+    finally:
+        await conn.close()
+
+
 # ---------- FETCH ALL USERS ----------
 @router.get("/")
 async def get_all_users():
@@ -180,7 +225,6 @@ async def get_all_teachers():
 
 #--------- FETCH ALL Departments ----------
 @router.get("/departments")
-@router.get("/departments")
 async def get_all_departments():
     conn = await get_db_connection()
     try:
@@ -237,14 +281,14 @@ async def get_all_resources():
                 r.description,
                 r.uploaded_by,
                 r.date_uploaded,
-                COUNT(rt.target_id) AS target_count
+                COUNT(rt.id) AS target_count
                 FROM rms.resource r
                 LEFT JOIN rms.resourcetarget rt
                 ON r.resource_id = rt.resource_id
                 GROUP BY
                 r.resource_id,
-                r.title,
-                r.type,
+                r.file_id,
+                r.description,
                 r.uploaded_by,
                 r.date_uploaded
                 ORDER BY
@@ -256,9 +300,10 @@ async def get_all_resources():
         for row in rows:
             resources.append({
                 "resource_id": row["resource_id"],
+                "file_id": row["file_id"],
                 "description": row["description"],
                 "uploaded_by": row["uploaded_by"],
-                "date_uploaded": row["date_uploaded"].isoformat(),
+                "date_uploaded": row["date_uploaded"].isoformat() if row["date_uploaded"] else None,
                 "target_count": row["target_count"]
             })
 
@@ -307,6 +352,94 @@ async def delete_resource(resource_id: int):
             raise HTTPException(status_code=404, detail="Resource not found")
         
         return {"message": "Resource deleted successfully"}
+
+    finally:
+        await conn.close()
+
+
+# ---------- FETCH ALL FILES ----------
+@router.get("/files")
+async def get_all_files(search: str = None, file_type: str = None):
+    conn = await get_db_connection()
+    try:
+        query = """
+            SELECT file_id, file_name, file_type, uploaded_at, file_path
+            FROM rms.file
+            WHERE 1=1
+        """
+        params = []
+        param_idx = 1
+
+        if search:
+            query += f" AND LOWER(file_name) LIKE LOWER(${param_idx})"
+            params.append(f"%{search}%")
+            param_idx += 1
+
+        if file_type and file_type != "All Types":
+            query += f" AND LOWER(file_type) = LOWER(${param_idx})"
+            params.append(file_type)
+            param_idx += 1
+
+        query += " ORDER BY uploaded_at DESC"
+
+        rows = await conn.fetch(query, *params)
+
+        files = []
+        for row in rows:
+            files.append({
+                "file_id": row["file_id"],
+                "file_name": row["file_name"],
+                "file_type": row["file_type"],
+                "uploaded_at": row["uploaded_at"].isoformat() if row["uploaded_at"] else None,
+                "file_path": row["file_path"]
+            })
+
+        return {
+            "count": len(files),
+            "files": files
+        }
+
+    finally:
+        await conn.close()
+
+
+# ---------- GET SINGLE FILE ----------
+@router.get("/files/{file_id}")
+async def get_file(file_id: int):
+    conn = await get_db_connection()
+    try:
+        file = await conn.fetchrow("""
+            SELECT * FROM rms.file WHERE file_id = $1
+        """, file_id)
+
+        if not file:
+            raise HTTPException(status_code=404, detail="File not found")
+
+        return {
+            "file_id": file["file_id"],
+            "file_name": file["file_name"],
+            "file_type": file["file_type"],
+            "uploaded_at": file["uploaded_at"].isoformat() if file["uploaded_at"] else None,
+            "file_path": file["file_path"]
+        }
+
+    finally:
+        await conn.close()
+
+
+# ---------- DELETE FILE ----------
+@router.delete("/files/{file_id}")
+async def delete_file(file_id: int):
+    conn = await get_db_connection()
+    try:
+        result = await conn.execute("""
+            DELETE FROM rms.file WHERE file_id = $1
+        """, file_id)
+
+        if result == "DELETE 0":
+            raise HTTPException(status_code=404, detail="File not found")
+
+        return {"message": "File deleted successfully"}
 
     finally:
         await conn.close()
