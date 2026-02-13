@@ -3,14 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from app.core.database import SessionLocal
 from app.routes import admin, users
-<<<<<<< HEAD
 from dotenv import load_dotenv
 import os
 
 load_dotenv()  # Move this to the top
-=======
-import os
->>>>>>> 5e3d6f4 (set CI/CD Pipeline and vercel deployment)
 
 app = FastAPI(title="Resource Management System API")
 
@@ -28,15 +24,7 @@ origins = [origin for origin in origins if origin]
 
 app.add_middleware(
     CORSMiddleware,
-<<<<<<< HEAD
-    allow_origins=[
-        FRONTEND_URL,
-        "http://localhost:3000",
-        "https://rms-tcioe.vercel.app"  
-    ],
-=======
     allow_origins=origins,
->>>>>>> 5e3d6f4 (set CI/CD Pipeline and vercel deployment)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
