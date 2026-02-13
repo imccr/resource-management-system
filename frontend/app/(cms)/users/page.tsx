@@ -21,11 +21,7 @@ export default function UsersPage() {
   const [openStudent, setOpenStudent] = useState(false)
 
   const fetchUsers = async () => {
-<<<<<<< HEAD
     const res = await fetch(`${API_URL}/users`)
-=======
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`)
->>>>>>> aa990d3 (deployed)
     const data = await res.json()
     setUsers(data.users)
   }
@@ -37,8 +33,24 @@ export default function UsersPage() {
     return () => clearTimeout(timer);
   }, [])
 
-  const handleEdit = () => {
-    alert("Edit user functionality to be implemented")
+  const [selectedUser, setSelectedUser] = useState<any>(null)
+
+  const handleEdit = async (user: User) => {
+    try {
+      const res = await fetch(`${API_URL}/users/${user.id}`)
+      if (!res.ok) throw new Error("Failed to fetch user details")
+      const detailedUser = await res.json()
+
+      setSelectedUser(detailedUser)
+      if (user.role_id === 1) {
+        setOpenTeacher(true)
+      } else {
+        setOpenStudent(true)
+      }
+    } catch (error) {
+      alert("Error fetching user details")
+      console.error(error)
+    }
   }
 
   const handleDelete = (userId: number) => {
@@ -107,7 +119,7 @@ export default function UsersPage() {
                 </td>
                 <td className="p-4 text-center">
                   <div className="flex gap-2 justify-center">
-                    <EditButton onClick={handleEdit} />
+                    <EditButton onClick={() => handleEdit(u)} />
                     <DeleteButton onClick={() => handleDelete(u.id)} />
                   </div>
                 </td>
@@ -118,14 +130,24 @@ export default function UsersPage() {
       </div>
 
       <AddTeacherModal
+        key={selectedUser ? `edit-teacher-${selectedUser.id}` : 'add-teacher'}
         open={openTeacher}
-        onClose={() => setOpenTeacher(false)}
+        onClose={() => {
+          setOpenTeacher(false)
+          setSelectedUser(null)
+        }}
         onSuccess={fetchUsers}
+        initialData={selectedUser}
       />
       <AddStudentModal
+        key={selectedUser ? `edit-student-${selectedUser.id}` : 'add-student'}
         open={openStudent}
-        onClose={() => setOpenStudent(false)}
+        onClose={() => {
+          setOpenStudent(false)
+          setSelectedUser(null)
+        }}
         onSuccess={fetchUsers}
+        initialData={selectedUser}
       />
     </div>
   )

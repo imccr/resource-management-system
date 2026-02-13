@@ -1,17 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-export default function AddTeacherModal({ open, onClose, onSuccess }: any) {
+export default function AddTeacherModal({ open, onClose, onSuccess, initialData }: any) {
   const [form, setForm] = useState({
-    full_name: "",
-    email: "",
+    full_name: initialData?.full_name || "",
+    email: initialData?.email || "",
     password: "",
     role_id: 1,
-    is_active: true,
-    department_id: 1,
+    is_active: initialData?.is_active ?? true,
+    department_id: initialData?.department_id || 1,
   })
 
   if (!open) return null
@@ -19,12 +19,15 @@ export default function AddTeacherModal({ open, onClose, onSuccess }: any) {
   const submit = async () => {
     console.log(JSON.stringify(form))
 
-<<<<<<< HEAD
-    await fetch(`${API_URL}/users`, {
-=======
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
->>>>>>> aa990d3 (deployed)
-      method: "POST",
+
+    const url = initialData
+      ? `${API_URL}/users/${initialData.id}`
+      : `${API_URL}/users`
+
+    const method = initialData ? "PATCH" : "POST"
+
+    await fetch(url, {
+      method: method,
       headers: {
         "Content-Type": "application/json",
       },
@@ -40,13 +43,14 @@ export default function AddTeacherModal({ open, onClose, onSuccess }: any) {
     <div className="fixed inset-0 flex items-center justify-center z-50" style={{ background: 'var(--modal-backdrop)' }}>
       <div className="w-105 rounded-lg p-6" style={{ background: 'var(--modal-bg)' }}>
         <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--accent-primary)' }}>
-          Add New Teacher
+          {initialData ? "Edit Teacher" : "Add New Teacher"}
         </h2>
 
         <div className="space-y-3">
           <input
             className="w-full rounded px-3 py-2"
             placeholder="Full Name"
+            value={form.full_name}
             onChange={(e) =>
               setForm({ ...form, full_name: e.target.value })
             }
@@ -57,6 +61,7 @@ export default function AddTeacherModal({ open, onClose, onSuccess }: any) {
             className="w-full rounded px-3 py-2"
             placeholder="Email"
             type="email"
+            value={form.email}
             onChange={(e) =>
               setForm({ ...form, email: e.target.value })
             }
@@ -65,8 +70,9 @@ export default function AddTeacherModal({ open, onClose, onSuccess }: any) {
 
           <input
             className="w-full rounded px-3 py-2"
-            placeholder="Password"
+            placeholder={initialData ? "Password (leave blank to keep current)" : "Password"}
             type="password"
+            value={form.password}
             onChange={(e) =>
               setForm({ ...form, password: e.target.value })
             }
@@ -75,6 +81,7 @@ export default function AddTeacherModal({ open, onClose, onSuccess }: any) {
           <label className="mb-4 block" style={{ color: 'var(--text-primary)' }}>Department
             <select
               className="w-full rounded px-3 py-2 mt-1"
+              value={form.department_id}
               onChange={(e) =>
                 setForm({ ...form, department_id: Number(e.target.value) })
               }
