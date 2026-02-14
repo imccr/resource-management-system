@@ -1,6 +1,6 @@
 ## Deployment Status
-- Backend: https://rms-backend.onrender.com
-- Frontend: https://rms-xxxxx.vercel.app
+- Backend: https://rms-backend-k5gv.onrender.com/
+- Frontend: https://rms-tcioe.vercel.app/
 " >> README.md
 
 # Commit and push
