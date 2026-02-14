@@ -1,5 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { getAuthHeaders } from "@/utils/auth"
 
 type Departments = {
   department_id: number
@@ -12,13 +14,23 @@ type Departments = {
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function DepartmentsPage() {
+  const router = useRouter();
   const [departments, setDepartments] = useState<Departments[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const res = await fetch(`${API_URL}/users/departments`)
+        const res = await fetch(`${API_URL}/users/departments`, {
+          headers: getAuthHeaders()
+        })
+
+        if (res.status === 401) {
+          document.cookie = 'token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          router.replace('/login');
+          return;
+        }
+
         const data = await res.json()
         setDepartments(data.departments || [])
       } catch (error) {

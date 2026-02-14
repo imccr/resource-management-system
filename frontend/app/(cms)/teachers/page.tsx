@@ -1,5 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { getAuthHeaders } from "@/utils/auth"
 
 type Teacher = {
   teacher_id: number
@@ -12,8 +14,19 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 export default function TeachersPage() {
   const [teachers, setTeachers] = useState<Teacher[]>([])
 
+  const router = useRouter();
+
   const fetchTeachers = async () => {
-    const res = await fetch(`${API_URL}/users/teachers`)
+    const res = await fetch(`${API_URL}/users/teachers`, {
+      headers: getAuthHeaders()
+    })
+
+    if (res.status === 401) {
+      document.cookie = 'token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      router.replace('/login');
+      return;
+    }
+
     const data = await res.json()
     setTeachers(data.teachers)
   }

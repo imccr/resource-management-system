@@ -1,5 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { getAuthHeaders } from "@/utils/auth"
 
 type FileItem = {
     file_id: number
@@ -13,6 +15,7 @@ type FileItem = {
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function FilesPage() {
+    const router = useRouter();
     const [files, setFiles] = useState<FileItem[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState("")
@@ -27,7 +30,16 @@ export default function FilesPage() {
 
             const queryString = params.toString()
             const url = `${API_URL}/users/files${queryString ? `?${queryString}` : ""}`
-            const res = await fetch(url)
+            const res = await fetch(url, {
+                headers: getAuthHeaders()
+            })
+
+            if (res.status === 401) {
+                document.cookie = 'token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                router.replace('/login');
+                return;
+            }
+
             const data = await res.json()
             setFiles(data.files || [])
         } catch (error) {
@@ -56,7 +68,8 @@ export default function FilesPage() {
         if (confirm("Are you sure you want to delete this file?")) {
             try {
                 const res = await fetch(`${API_URL}/users/files/${fileId}`, {
-                    method: "DELETE"
+                    method: "DELETE",
+                    headers: getAuthHeaders()
                 })
                 if (res.ok) {
                     setFiles(files.filter(f => f.file_id !== fileId))

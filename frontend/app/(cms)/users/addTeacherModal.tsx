@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { getAuthHeaders } from "@/utils/auth"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -30,6 +31,7 @@ export default function AddTeacherModal({ open, onClose, onSuccess, initialData 
       method: method,
       headers: {
         "Content-Type": "application/json",
+        ...getAuthHeaders(),
       },
       body: JSON.stringify(form),
     })

@@ -17,12 +17,14 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/',
-    '/users/:path*',
-    '/students/:path*',
-    '/teachers/:path*',
-    '/departments/:path*',
-    '/resources/:path*',
-    '/files/:path*',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - login (login page)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico|login).*)',
   ],
 };

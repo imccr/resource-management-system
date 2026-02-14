@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { getAuthHeaders } from '@/utils/auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [stats, setStats] = useState({
     students: 0,
     teachers: 0,
@@ -15,11 +18,24 @@ export default function DashboardPage() {
   });
   const [loading, setLoading] = useState(true);
 
+
+  // ... (keep existing state)
+
   const fetchStats = async () => {
     setLoading(true);
     try {
       // Single endpoint using JOINs to get all counts
-      const res = await fetch(`${API_URL}/users/dashboard-stats`);
+      const res = await fetch(`${API_URL}/users/dashboard-stats`, {
+        headers: getAuthHeaders()
+      });
+
+      if (res.status === 401) {
+        // Token invalid or expired - force logout
+        document.cookie = 'token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        router.replace('/login');
+        return;
+      }
+
       const data = await res.json();
 
       setStats({

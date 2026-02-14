@@ -1,5 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { getAuthHeaders } from "@/utils/auth"
 import AddTeacherModal from "./addTeacherModal"
 import AddStudentModal from "./addStudentModal"
 import { EditButton, DeleteButton } from "@/components/button"
@@ -20,8 +22,19 @@ export default function UsersPage() {
   const [openTeacher, setOpenTeacher] = useState(false)
   const [openStudent, setOpenStudent] = useState(false)
 
+  const router = useRouter();
+
   const fetchUsers = async () => {
-    const res = await fetch(`${API_URL}/users`)
+    const res = await fetch(`${API_URL}/users`, {
+      headers: getAuthHeaders()
+    })
+
+    if (res.status === 401) {
+      document.cookie = 'token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      router.replace('/login');
+      return;
+    }
+
     const data = await res.json()
     setUsers(data.users)
   }
@@ -37,7 +50,9 @@ export default function UsersPage() {
 
   const handleEdit = async (user: User) => {
     try {
-      const res = await fetch(`${API_URL}/users/${user.id}`)
+      const res = await fetch(`${API_URL}/users/${user.id}`, {
+        headers: getAuthHeaders()
+      })
       if (!res.ok) throw new Error("Failed to fetch user details")
       const detailedUser = await res.json()
 
@@ -57,6 +72,7 @@ export default function UsersPage() {
     if (confirm("Are you sure you want to delete this user?")) {
       fetch(`${API_URL}/users/${userId}`, {
         method: "DELETE",
+        headers: getAuthHeaders()
       })
         .then((res) => res.json())
         .then(() => fetchUsers())

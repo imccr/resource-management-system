@@ -20,8 +20,13 @@ export default function Sidebar() {
   const { theme, toggleTheme } = useTheme();
 
   const logout = () => {
-    document.cookie = 'token=; path=/; max-age=0';
-    router.replace('/login');
+    // Clear cookie with specific path
+    document.cookie = 'token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    // Clear cookie without path just in case
+    document.cookie = 'token=; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+
+    // Force reload to trigger client-side checks immediately
+    window.location.href = '/login';
   };
 
   return (

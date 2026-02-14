@@ -1,13 +1,14 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 import asyncpg
 import bcrypt
 from app.core.database import DATABASE_URL
 from app.core.database import DATABASE_URL
 from app.schemas.user import UserCreate, UserUpdate
 from datetime import date, datetime
+from app.core.security import get_current_user
 
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(prefix="/users", tags=["Users"], dependencies=[Depends(get_current_user)])
 
 
 # ---------- DB CONNECTION ----------

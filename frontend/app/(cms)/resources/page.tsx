@@ -1,5 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { getAuthHeaders } from "@/utils/auth"
 
 type Resource = {
   resource_id: number
@@ -13,6 +15,7 @@ type Resource = {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 export default function ResourcesPage() {
+  const router = useRouter();
   const [resources, setResources] = useState<Resource[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [filterType, setFilterType] = useState("All Types")
@@ -23,7 +26,16 @@ export default function ResourcesPage() {
     setMounted(true)
     const fetchResources = async () => {
       try {
-        const res = await fetch(`${API_URL}/users/resources`)
+        const res = await fetch(`${API_URL}/users/resources`, {
+          headers: getAuthHeaders()
+        })
+
+        if (res.status === 401) {
+          document.cookie = 'token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          router.replace('/login');
+          return;
+        }
+
         const data = await res.json()
         setResources(data.resources || [])
       } catch (error) {
@@ -41,7 +53,8 @@ export default function ResourcesPage() {
     if (confirm("Are you sure you want to delete this resource?")) {
       try {
         const res = await fetch(`${API_URL}/users/resources/${resourceId}`, {
-          method: "DELETE"
+          method: "DELETE",
+          headers: getAuthHeaders()
         })
         if (res.ok) {
           setResources(resources.filter(r => r.resource_id !== resourceId))
