@@ -1,0 +1,17 @@
+{
+    "buildCommand": "cd frontend && npm install && npm run build",
+    "outputDirectory": "frontend/.next",
+    "framework": "nextjs",
+    "builds": [
+        {
+            "src": "backend/index.py",
+            "use": "@vercel/python"
+        }
+    ],
+    "rewrites": [
+        {
+            "source": "/api/:path*",
+            "destination": "/backend/index.py"
+        }
+    ]
+}

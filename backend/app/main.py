@@ -8,15 +8,16 @@ import os
 
 load_dotenv()  # Move this to the top
 
-app = FastAPI(title="Resource Management System API")
+app = FastAPI(title="Resource Management System API", root_path="/api")
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 # CORS - Updated for production
+# In production on Vercel, frontend & API share the same origin so CORS isn't
+# strictly needed, but we keep localhost for local development.
 origins = [
     "http://localhost:3000",  # Local development
-    os.getenv("FRONTEND_URL", ""),  # Production frontend
-    "https://*.vercel.app",  # All Vercel deployments
+    os.getenv("FRONTEND_URL", ""),  # Production frontend (if set)
 ]
 
 # Remove empty strings
